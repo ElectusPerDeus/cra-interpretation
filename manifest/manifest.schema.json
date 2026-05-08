@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cybersec.local/schemas/cra-interpretation-manifest.v1.json",
+  "title": "CRA Interpretation Manifest",
+  "type": "object",
+  "required": [
+    "manifestId",
+    "manifestVersion",
+    "status",
+    "owner",
+    "compatibility",
+    "serviceTagTaxonomy",
+    "rules"
+  ],
+  "properties": {
+    "manifestId": { "type": "string", "minLength": 1 },
+    "manifestVersion": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["draft", "approved"] },
+    "owner": { "type": "string", "minLength": 1 },
+    "compatibility": {
+      "type": "object",
+      "required": ["questionnaireVersion", "scoringVersion"],
+      "properties": {
+        "questionnaireVersion": { "type": "string", "minLength": 1 },
+        "scoringVersion": { "type": "string", "minLength": 1 },
+        "minEngineVersion": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "serviceTagTaxonomy": {
+      "type": "object",
+      "required": ["allowedTags"],
+      "properties": {
+        "allowedTags": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "rules": {
+      "type": "object",
+      "required": ["atomic", "composite", "domainRollup", "executiveRollup"],
+      "properties": {
+        "atomic": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleAtomic" }
+        },
+        "composite": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleComposite" }
+        },
+        "domainRollup": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleRollup" }
+        },
+        "executiveRollup": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleRollup" }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "priority": { "type": "string", "enum": ["P1", "P2", "P3", "P4"] },
+    "confidenceImpact": { "type": "string", "enum": ["increase", "neutral", "decrease"] },
+    "scope": { "type": "string", "enum": ["atomic", "composite", "domain_rollup", "executive_rollup"] },
+    "predicate": {
+      "type": "object",
+      "required": ["type", "operator"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "answer_equals",
+            "answer_in",
+            "domain_score_gte",
+            "domain_score_lte",
+            "residual_risk_in"
+          ]
+        },
+        "questionId": { "type": "string" },
+        "domain": { "type": "string" },
+        "operator": { "type": "string", "enum": ["eq", "in", "gte", "lte"] },
+        "value": {}
+      },
+      "additionalProperties": false
+    },
+    "ruleCommon": {
+      "type": "object",
+      "required": [
+        "interpretationId",
+        "version",
+        "scope",
+        "domain",
+        "predicates",
+        "positiveSignals",
+        "riskConcerns",
+        "advisoryInterpretation",
+        "validationPrompts",
+        "recommendedNextActions",
+        "suggestedCyberSecEngagements",
+        "priority",
+        "confidenceImpact",
+        "enabled"
+      ],
+      "properties": {
+        "interpretationId": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "scope": { "$ref": "#/$defs/scope" },
+        "domain": { "type": ["string", "null"] },
+        "questionId": { "type": ["string", "null"] },
+        "optionId": { "type": ["string", "null"] },
+        "topicKey": { "type": "string" },
+        "predicates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/predicate" }
+        },
+        "positiveSignals": { "type": "array", "items": { "type": "string" } },
+        "riskConcerns": { "type": "array", "items": { "type": "string" } },
+        "advisoryInterpretation": { "type": "array", "items": { "type": "string" } },
+        "validationPrompts": { "type": "array", "items": { "type": "string" } },
+        "recommendedNextActions": { "type": "array", "items": { "type": "string" } },
+        "suggestedCyberSecEngagements": { "type": "array", "items": { "type": "string" } },
+        "priority": { "$ref": "#/$defs/priority" },
+        "confidenceImpact": { "$ref": "#/$defs/confidenceImpact" },
+        "enabled": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "ruleAtomic": {
+      "allOf": [
+        { "$ref": "#/$defs/ruleCommon" },
+        {
+          "type": "object",
+          "required": ["questionId", "optionId"],
+          "properties": {
+            "scope": { "const": "atomic" },
+            "questionId": { "type": "string", "minLength": 1 },
+            "optionId": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "ruleComposite": {
+      "allOf": [
+        { "$ref": "#/$defs/ruleCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "scope": { "const": "composite" }
+          }
+        }
+      ]
+    },
+    "ruleRollup": {
+      "allOf": [
+        { "$ref": "#/$defs/ruleCommon" },
+        {
+          "type": "object",
+          "properties": {
+            "scope": { "enum": ["domain_rollup", "executive_rollup"] }
+          }
+        }
+      ]
+    }
+  }
+}
