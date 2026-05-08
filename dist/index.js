@@ -1,0 +1,10 @@
+import manifestData from "../manifest/manifest.v1.json" with { type: "json" };
+import { buildCoverageMap } from "./coverage-map.js";
+import { evaluateCraInterpretation, getCraInterpretationManifest, validateManifestReferences, validateManifestSchemaShape, validateServiceTags, } from "./evaluator.js";
+import { manifestHash } from "./manifest-hash.js";
+import { mapServiceTagsToLabels, serviceLabelMap } from "./service-labels.js";
+import { allowedServiceTags } from "./service-taxonomy.js";
+import { evaluatorVersion } from "./version.js";
+const manifest = manifestData;
+const manifestVersion = manifest.manifestVersion;
+export { allowedServiceTags, buildCoverageMap, evaluateCraInterpretation, evaluatorVersion, getCraInterpretationManifest, manifest, manifestHash, manifestVersion, mapServiceTagsToLabels, serviceLabelMap, validateManifestReferences, validateManifestSchemaShape, validateServiceTags, };
